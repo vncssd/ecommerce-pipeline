@@ -1,7 +1,14 @@
 import pandas as pd
+import os
 from sqlalchemy import create_engine
+from dotenv import load_dotenv
 
-engine = create_engine('postgresql://postgres:senha@localhost:5432/olist')
+load_dotenv()
+
+db_username = os.getenv("DB_USERNAME")
+db_password = os.getenv("DB_PASSWORD")
+
+engine = create_engine(f'postgresql://{db_username}:{db_username}@localhost:5432/olist_ecommerce')
 
 tabelas = {
     'customers': 'olist_customers_dataset.csv',
