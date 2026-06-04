@@ -1,7 +1,7 @@
 import pandas as pd
 import os
+import clickhouse_connect
 from sqlalchemy import create_engine, text
-from clickhouse_driver import Client
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -9,9 +9,19 @@ load_dotenv()
 db_username = os.getenv("DB_USERNAME")
 db_password = os.getenv("DB_PASSWORD")
 
-PG_ENGINE = create_engine(f'postgresql://{db_username}:{db_username}@localhost:5432/olist_ecommerce')
-CH_CLIENT = Client(host='localhost')
+ch_host = os.getenv("CH_HOST")
+ch_user = os.getenv("CH_USER")
+ch_password = os.getenv("CH_PASSWORD")
+
+PG_ENGINE = create_engine(f'postgresql://{db_username}:{db_password}@localhost:5432/olist_ecommerce')
 CH_DB = 'olist_ecommerce'
+
+CH_CLIENT = clickhouse_connect.get_client(
+    host=ch_host,
+    user=ch_user,
+    password=ch_password,
+    secure=True 
+)
 
 TABELAS = [
     'customers',
@@ -24,13 +34,12 @@ TABELAS = [
 ]
 
 def create_database():
-    CH_CLIENT.execute(f'CREATE DATABASE IF NOT EXISTS {CH_DB}')
+    CH_CLIENT.command(f'CREATE DATABASE IF NOT EXISTS {CH_DB}')
     print(f'Database {CH_DB} verificado')
 
 def table_exists(tabela: str) -> bool:
-    result = CH_CLIENT.execute(f""" SELECT count() FROM system.tables WHERE database = '{CH_DB}' AND NAME = '{tabela}' """)
-    return result [0][0] > 0
-
+    result = CH_CLIENT.query(f"SELECT count() FROM system.tables WHERE database = '{CH_DB}' AND name = '{tabela}'")
+    return result.result_set [0][0] > 0
 
 def load_table(tabela: str):
     with PG_ENGINE.connect() as conn:
@@ -49,19 +58,17 @@ def load_table(tabela: str):
                 ch_type = 'Nullable(DateTime)'
             else:
                 ch_type = 'Nullable(String)'
-            cols_def.append(f'´{col}´ {ch_type}')
+            cols_def.append(f'`{col}` {ch_type}')
 
-        CH_CLIENT.execute(f''' CREATE TABLE {CH_DB}.{tabela} ({", ".join(cols_def)}) ENGINE = MergeTree() ORDER BY tuple() ''')
+        CH_CLIENT.command(f'CREATE TABLE {CH_DB}.{tabela} ({", ".join(cols_def)}) ENGINE = MergeTree() ORDER BY tuple()')
         print(f'Tabela {tabela} criada')
 
     else:
-        CH_CLIENT.execute(f'TRUNCATE TABLE  {CH_DB}.{tabela}')
+        CH_CLIENT.command(f'TRUNCATE TABLE  {CH_DB}.{tabela}')
         print(f'Tabela {tabela} truncada.')
 
-    rows = df.values.tolist()
-
-    CH_CLIENT.execute(f'INSERT INTO {CH_DB}.{tabela} VALUES', rows, types_check=True)
-    print(f'{tabela} - {len(rows)} linhas carregadas')
+    CH_CLIENT.insert_df(table=tabela, df=df, database=CH_DB)
+    print(f'{tabela} - {len(df)} linhas carregadas')
 
 def main():
     create_database()
