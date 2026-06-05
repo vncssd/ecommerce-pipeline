@@ -5,9 +5,41 @@ sources:
     database: olist_ecommerce
     tables:
       - name: customers
+        columns:
+          - name: customer_id
+            tests:
+              - not_null
+              - unique
       - name: order_items
+        columns:
+          - name: order_id
+            tests:
+              - not_null
       - name: order_payments
-      - name: order_reviews
+        columns:
+          - name: order_id
+            tests:
+              - not_null
       - name: products
+        columns:
+          - name: product_id
+            tests:
+              - not_null
+              - unique
       - name: sellers
+        columns:
+          - name: seller_id
+            tests:
+              - not_null
+              - unique
       - name: orders
+        columns:
+          - name: order_id
+            tests:
+              - not_null
+              - unique
+      - name: order_reviews
+        columns:
+          - name: review_id
+
+      
