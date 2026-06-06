@@ -2,7 +2,7 @@
 
 SELECT
     product_id,
-    category,
+    INITCAP(REPLACE(category, '_',' ')) as category,
     name_length,
     description_length,
     photos_quantity,
