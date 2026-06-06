@@ -2,7 +2,8 @@ version: 2
 
 sources:
   - name: olist_raw
-    database: olist_ecommerce
+    database: OLIST_ECOMMERCE
+    schema: RAW
     tables:
       - name: customers
         columns:
