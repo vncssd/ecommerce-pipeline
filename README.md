@@ -1,7 +1,7 @@
 # Ecommerce Pipeline
 
-Pipeline de dados completo utilizando dados públicos do e-commerce brasileiro Olist. O projeto cobre todas as etapas de um pipeline moderno: ingestão, transformação e visualização.
-<a href="https://datastudio.google.com/reporting/67fe7c26-c473-4f60-ba65-9b376170d3a0">
+##### Pipeline de dados completo utilizando dados públicos do e-commerce brasileiro Olist. O projeto cobre todas as etapas de um pipeline moderno: ingestão, transformação e visualização.
+<br> <a href="https://datastudio.google.com/reporting/67fe7c26-c473-4f60-ba65-9b376170d3a0">
 Acesse o dashboard
 </a>
 ---
